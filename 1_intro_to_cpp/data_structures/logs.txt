@@ -1,0 +1,4 @@
+2025-07-14 10:15:32,ERROR,Camera stream failed to start
+2025-07-14 10:16:01,INFO,Stream restarted successfully
+2025-07-14 10:17:10,WARN,Low frame rate detected
+2025-07-14 10:18:42,ERROR,Camera disconnected
