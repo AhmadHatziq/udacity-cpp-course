@@ -10,6 +10,7 @@
 class RouteModel : public Model {
 
   public:
+    // Not an attribute. Extends Node class with below functionality. 
     class Node : public Model::Node {
       public:
         Node * parent = nullptr;

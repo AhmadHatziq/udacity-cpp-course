@@ -25,7 +25,11 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
 // - You can use the distance to the end_node for the h value.
 // - Node objects have a distance method to determine the distance to another node.
 float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
-
+    /*
+        Calculates H Value as the distance of argument node to the end node 
+    */
+    float distance_to_end_node = node->distance(*end_node); 
+    return distance_to_end_node; 
 }
 
 
