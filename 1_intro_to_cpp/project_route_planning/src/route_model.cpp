@@ -1,6 +1,7 @@
 #include "route_model.h"
 #include <iostream>
 
+// Class constructor 
 RouteModel::RouteModel(const std::vector<std::byte> &xml) : Model(xml) {
     // Create RouteModel nodes.
     int counter = 0;
@@ -53,20 +54,25 @@ void RouteModel::Node::FindNeighbors() {
 
 
 RouteModel::Node &RouteModel::FindClosestNode(float x, float y) {
+    /*
+        Function name: FindClosestNode. Is a member function defined in a RouteModel
+        Find the closest non-footway node to the given x and y coordinates. 
+        Returns a reference to a Node ie RouteModel::Node&
+    */
     Node input;
     input.x = x;
     input.y = y;
 
-    float min_dist = std::numeric_limits<float>::max();
+    float min_dist = std::numeric_limits<float>::max(); // Initialize to max float value 
     float dist;
-    int closest_idx;
+    int closest_idx; 
 
-    for (const Model::Road &road : Roads()) {
-        if (road.type != Model::Road::Type::Footway) {
-            for (int node_idx : Ways()[road.way].nodes) {
-                dist = input.distance(SNodes()[node_idx]);
+    for (const Model::Road &road : Roads()) {           // Enhanced for loop, start iterating in Roads, using 'road' as single value iterator
+        if (road.type != Model::Road::Type::Footway) {  // Ignore footways 
+            for (int node_idx : Ways()[road.way].nodes) { // Iterate over node indices in the road
+                dist = input.distance(SNodes()[node_idx]); // Calculate distance between our input (x,y) node and the iterated node 
                 if (dist < min_dist) {
-                    closest_idx = node_idx;
+                    closest_idx = node_idx;               // Store closest node index and min distance 
                     min_dist = dist;
                 }
             }

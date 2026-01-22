@@ -8,6 +8,9 @@
 class Model
 {
 public:
+    // Struct (not attribute). Used to express Model's inner vocab or avoid namespace colisions. 
+    // Used via: Model::Node n;       
+    //           n.x = 3.0; n.y = 2.0; 
     struct Node {
         double x = 0.f;
         double y = 0.f;
@@ -44,6 +47,7 @@ public:
         Type type;
     };
     
+    // Constructor 
     Model( const std::vector<std::byte> &xml );
     
     auto MetricScale() const noexcept { return m_MetricScale; }    
@@ -62,6 +66,7 @@ private:
     void BuildRings( Multipolygon &mp );
     void LoadData(const std::vector<std::byte> &xml);
     
+    // Data attributes of a Model class 
     std::vector<Node> m_Nodes;
     std::vector<Way> m_Ways;
     std::vector<Road> m_Roads;
