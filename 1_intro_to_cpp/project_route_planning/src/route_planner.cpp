@@ -109,16 +109,32 @@ RouteModel::Node *RoutePlanner::NextNode() {
 // - For each node in the chain, add the distance from the node to its parent to the distance variable.
 // - The returned vector should be in the correct order: the start node should be the first element
 //   of the vector, the end node should be the last element.
+// Argument node is the final node. 
 std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node *current_node) {
     // Create path_found vector
     distance = 0.0f;
     std::vector<RouteModel::Node> path_found;
 
     // TODO: Implement your solution here.
+    RouteModel::Node* node_ptr = current_node;
+    while (node_ptr != nullptr) { // Loop until we reach the start node which has no parent. Safer than checking for equality with start_node. 
+        path_found.emplace_back(*node_ptr); // Add the node to path_found vector
 
+        // If the node has a parent, add the distance to the total distance
+        if (node_ptr->parent != nullptr) {
+            distance += node_ptr->distance(*(node_ptr->parent));
+        }
+
+        // Move to the parent node. Only start node has parent == nullptr
+        node_ptr = node_ptr->parent;
+    }
+
+    // Reverse the path_found vector to have the start node at the beginning
+    std::reverse(path_found.begin(), path_found.end());
+
+    // distance is private attribute of RoutePlanner class. 
     distance *= m_Model.MetricScale(); // Multiply the distance by the scale of the map to get meters.
     return path_found;
-
 }
 
 
