@@ -80,6 +80,25 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 // - Return the pointer.
 RouteModel::Node *RoutePlanner::NextNode() {
 
+    // Check if open_list is empty
+    if (open_list.empty()) return nullptr;
+
+    // Sort open_list according to the sum of h and g values
+    // Use lambda function for custom sort criteria
+    std::sort(open_list.begin(), open_list.end(), [](const RouteModel::Node* node1, const RouteModel::Node* node2) {
+        float f1 = node1->h_value + node1->g_value; // f = g + h
+        float f2 = node2->h_value + node2->g_value;
+        return f1 < f2; // Sort in ascending order
+    });
+
+    // Get pointer to node with lowest sum (first element after sorting)
+    RouteModel::Node* lowest_sum_node = open_list.front();
+
+    // Remove that node from open_list
+    open_list.erase(open_list.begin());
+    
+    // Return the pointer
+    return lowest_sum_node;
 }
 
 
