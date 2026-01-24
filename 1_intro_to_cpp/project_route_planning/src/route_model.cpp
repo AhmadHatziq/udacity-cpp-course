@@ -42,10 +42,14 @@ RouteModel::Node *RouteModel::Node::FindNeighbor(std::vector<int> node_indices) 
     return closest_node;
 }
 
-
+// This method is for a Node object. 
+// Populate the neighbors vector for the current node ie std::vector<Node *> neighbors. See route_model.h. 
 void RouteModel::Node::FindNeighbors() {
     for (auto & road : parent_model->node_to_road[this->index]) {
         RouteModel::Node *new_neighbor = this->FindNeighbor(parent_model->Ways()[road->way].nodes);
+
+        // If a valid neighbor node is found, add it to the neighbors vector
+        // neighbors is defined in: std::vector<Node *> neighbors;
         if (new_neighbor) {
             this->neighbors.emplace_back(new_neighbor);
         }
