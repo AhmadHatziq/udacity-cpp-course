@@ -22,7 +22,7 @@ string LinuxParser::OperatingSystem() {
       std::replace(line.begin(), line.end(), ' ', '_');
       std::replace(line.begin(), line.end(), '=', ' ');
       std::replace(line.begin(), line.end(), '"', ' ');
-      std::istringstream linestream(line);
+      std::istringstream linestream(line); //input string steam 
       while (linestream >> key >> value) {
         if (key == "PRETTY_NAME") {
           std::replace(value.begin(), value.end(), '_', ' ');
@@ -70,7 +70,7 @@ vector<int> LinuxParser::Pids() {
     }
   }
   closedir(directory);
-  return pids;
+  return pids; // A vector of process IDs 
 }
 
 // TODO: Read and return the system memory utilization

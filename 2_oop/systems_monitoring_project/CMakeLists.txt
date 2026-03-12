@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 project(monitor)
 
+# Ensure ncurses is installed on the build system 
 find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIRS})
 

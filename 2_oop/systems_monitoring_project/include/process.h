@@ -18,6 +18,7 @@ class Process {
 
   // TODO: Declare any necessary private members
  private:
+  int process_id; 
 };
 
 #endif
