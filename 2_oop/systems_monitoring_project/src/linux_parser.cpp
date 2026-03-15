@@ -16,6 +16,8 @@ string LinuxParser::OperatingSystem() {
   string line;
   string key;
   string value;
+
+  // Read contents of the OS file 
   std::ifstream filestream(kOSPath); // kOSPath{"/etc/os-release"};
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
@@ -38,6 +40,8 @@ string LinuxParser::OperatingSystem() {
 string LinuxParser::Kernel() {
   string os, kernel, version;
   string line;
+
+  // Read contents of the kernel file at "/proc/version"
   std::ifstream stream(kProcDirectory + kVersionFilename); // kProcDirectory{"/proc/"}; kVersionFilename{"/version"};
   if (stream.is_open()) {
     std::getline(stream, line);
@@ -50,26 +54,46 @@ string LinuxParser::Kernel() {
   return kernel;
 }
 
+/**
+ * @brief Retrieves the list of active process IDs from the Linux files/process in `/proc`
+ *
+ * This function scans the /proc directory and identifies entries whose names
+ * consist entirely of digits. In Linux, such directories correspond to running
+ * processes and are named after their process IDs (PIDs).
+ *
+ * The function:
+ * 1. Opens the /proc directory.
+ * 2. Iterates through each entry using readdir().
+ * 3. Checks if the entry is a directory.
+ * 4. Verifies that the directory name contains only numeric characters.
+ * 5. Converts the directory name to an integer PID.
+ * 6. Adds the PID to a vector of process IDs.
+ *
+ * @return std::vector<int> A vector containing all detected process IDs.
+ *
+ * @note This implementation relies on POSIX directory APIs (opendir, readdir).
+ *       It could alternatively be implemented using std::filesystem in modern C++.
+ */
 // BONUS: Update this to use std::filesystem
 vector<int> LinuxParser::Pids() {
   vector<int> pids;
 
-  // Directory pointer 
+  // Directory pointer to the /proc directory
   DIR* directory = opendir(kProcDirectory.c_str()); // kProcDirectory{"/proc/"};
   struct dirent* file;
 
-  while ((file = readdir(directory)) != nullptr) {
+  while ((file = readdir(directory)) != nullptr) { // While file pointer is valid 
     // Is this a directory?
     if (file->d_type == DT_DIR) { // Checks for valid directory 
       // Is every character of the name a digit?
       string filename(file->d_name);
-      if (std::all_of(filename.begin(), filename.end(), isdigit)) {
-        int pid = stoi(filename);
+      if (std::all_of(filename.begin(), filename.end(), isdigit)) { // Checks if the filename consists of digits only
+        int pid = stoi(filename); // Convert the filename (which is a string) to an integer PID
         pids.push_back(pid);
       }
     }
   }
-  closedir(directory);
+  closedir(directory); // Close the directory stream to free resources
   return pids; // A vector of process IDs 
 }
 
