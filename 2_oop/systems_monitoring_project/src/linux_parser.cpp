@@ -24,10 +24,15 @@ string LinuxParser::OperatingSystem() {
   
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
+
+      // Replace the seperator chars with space, so that ">>" can be used to parse the file.
       std::replace(line.begin(), line.end(), ' ', '_');
       std::replace(line.begin(), line.end(), '=', ' ');
       std::replace(line.begin(), line.end(), '"', ' ');
+
       std::istringstream linestream(line); //input string steam. Use the "line" string as the input for the stream, return to a var called "linestream"
+      
+      // Split by space
       while (linestream >> key >> value) {
         if (key == "PRETTY_NAME") {
           std::replace(value.begin(), value.end(), '_', ' ');
