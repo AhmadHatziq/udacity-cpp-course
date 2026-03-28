@@ -18,13 +18,16 @@ string LinuxParser::OperatingSystem() {
   string value;
 
   // Read contents of the OS file 
-  std::ifstream filestream(kOSPath); // kOSPath{"/etc/os-release"};
+  // Object of type "ifstream", with var name "filestream". 
+  // Equivalent tostd::ifstream filestream = std::ifstream(kOSPath);
+  std::ifstream filestream(kOSPath); // kOSPath{"/etc/os-release"}; 
+  
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
       std::replace(line.begin(), line.end(), ' ', '_');
       std::replace(line.begin(), line.end(), '=', ' ');
       std::replace(line.begin(), line.end(), '"', ' ');
-      std::istringstream linestream(line); //input string steam 
+      std::istringstream linestream(line); //input string steam. Use the "line" string as the input for the stream, return to a var called "linestream"
       while (linestream >> key >> value) {
         if (key == "PRETTY_NAME") {
           std::replace(value.begin(), value.end(), '_', ' ');
@@ -42,7 +45,9 @@ string LinuxParser::Kernel() {
   string line;
 
   // Read contents of the kernel file at "/proc/version"
+  // Create a var called "stream" of type "ifstream" and initialize it with the file at "/proc/version"
   std::ifstream stream(kProcDirectory + kVersionFilename); // kProcDirectory{"/proc/"}; kVersionFilename{"/version"};
+  
   if (stream.is_open()) {
     std::getline(stream, line);
     std::istringstream linestream(line);
@@ -98,7 +103,55 @@ vector<int> LinuxParser::Pids() {
 }
 
 // TODO: Read and return the system memory utilization
-float LinuxParser::MemoryUtilization() { return 0.0; }
+/**
+ * Reads the /proc/meminfo file to calculate the sum and return the system's memory utilization as a float.
+ */
+float LinuxParser::MemoryUtilization() {
+  
+  float memTotal{0.0}; float memFree{0.0}; float memAvailable{0.0}; float memUtilization{0.0};
+  string line; 
+
+  // Get input file stream for the /proc/meminfo file
+  std::ifstream stream(kProcDirectory + kMeminfoFilename);
+
+  /*
+    Sample file contents: 
+      MemTotal:        8090836 kB
+      MemFree:         6288984 kB
+  */
+
+  if (stream.is_open()) {
+    while (std::getline(stream, line)) { 
+      std::string key, unit;
+      float value;
+
+      // Parse each line as they are in the format: <key>: <value> <unit>
+      std::istringstream linestream(line);
+      linestream >> key >> value >> unit;
+
+      // Assign value based on key 
+      if (key == "MemTotal:") {
+        memTotal = value;
+      } else if (key == "MemAvailable:") {
+        memAvailable = value;
+      } else if (key == "MemFree:") {
+        memFree = value; // Record down this value just in case. 
+      }
+
+      // Early optimization: Break onces we have all 3 values 
+      if (memTotal > 0 && memAvailable > 0 && memFree > 0) {
+        break;
+      }
+    }
+  }
+
+  // Check for division by zero
+  if (memTotal == 0) return 0.0;
+
+  // Calculate memory utilization as (MemTotal - MemAvailable) / MemTotal
+  memUtilization = (memTotal - memAvailable) / memTotal;
+  return memUtilization; 
+  }
 
 // TODO: Read and return the system uptime
 long LinuxParser::UpTime() { return 0; }
