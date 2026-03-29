@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "linux_parser.h"
 
@@ -188,6 +189,7 @@ long LinuxParser::UpTime() {
 // TODO: Read and return the number of jiffies for the system
 /**
  * Reads the /proc/stat file to calculate and return the total number of jiffies for the system.
+ * Total jiffies = user + nice + system + idle + iowait + irq + softirq + steal (exclude guest, guestNice)
  */
 long LinuxParser::Jiffies() {
   string line; 
@@ -213,18 +215,39 @@ long LinuxParser::Jiffies() {
   return 0; 
 }
 
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
-
 // TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
+/**
+ * Reads the /proc/stat file to calculate and return the total number of active jiffies for the system.
+ * Active jiffies are calculated as the sum of user, nice, system, irq, softirq, and steal jiffies.
+ * Exclude guest, iowait and idle jiffies as they represent idle time.
+ */
+long LinuxParser::ActiveJiffies() {
+  
+  // Calls helper function to get a map of jiffies with keys
+  auto j = CpuJiffiesMap();
+
+  return j["user"] + j["nice"] + j["system"] + j["irq"] + j["softirq"] + j["steal"];
+         
+  }
 
 // TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
+/**
+ * Reads the /proc/stat file to calculate and return the total number of idle jiffies for the system.
+ * Idle jiffies are calculated as the sum of idle and iowait jiffies, which represent idle time.
+ */
+long LinuxParser::IdleJiffies() {
+  // Calls helper function to get a map of jiffies with keys
+  auto j = CpuJiffiesMap();
+
+  return j["idle"] + j["iowait"];
+}
 
 // TODO: Read and return CPU utilization
 vector<string> LinuxParser::CpuUtilization() { return {}; }
+
+// TODO: Read and return the number of active jiffies for a PID
+// REMOVE: [[maybe_unused]] once you define the function
+long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
 
 // TODO: Read and return the total number of processes
 int LinuxParser::TotalProcesses() { return 0; }
@@ -251,3 +274,34 @@ string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+
+// Returns a map of CPU jiffies with keys: user, nice, system, idle, iowait, irq, softirq, steal, guest, guestNice
+std::unordered_map<std::string, long> LinuxParser::CpuJiffiesMap() {
+  std::unordered_map<std::string, long> jiffies;
+
+  std::ifstream stream(kProcDirectory + kStatFilename);
+
+  if (stream.is_open()) {
+    std::string line;
+    std::getline(stream, line);
+
+    std::istringstream linestream(line);
+
+    std::string cpu;
+    linestream >> cpu;  // skip "cpu"
+
+    std::vector<std::string> keys = {
+        "user", "nice", "system", "idle",
+        "iowait", "irq", "softirq", "steal",
+        "guest", "guestNice"
+    };
+
+    for (const auto& key : keys) {
+      long value{0};
+      linestream >> value;
+      jiffies[key] = value;
+    }
+  }
+
+  return jiffies;
+}
