@@ -318,10 +318,64 @@ long LinuxParser::ActiveJiffies(int pid) {
 }
 
 // TODO: Read and return the total number of processes
-int LinuxParser::TotalProcesses() { return 0; }
+/**
+ * Reads the /proc/stat file to find the line that starts with "processes" and returns the value as the total number of processes created since boot. 
+ */
+int LinuxParser::TotalProcesses() { 
+  string line; 
+  string key; 
+  string value; 
+  
+  // Read input file stream for the /proc/stat file 
+  std::ifstream stream(kProcDirectory + kStatFilename);
+
+  if (stream.is_open()) {
+    while (std::getline(stream, line)) {
+
+      std::istringstream linestream(line); 
+
+      // Split by space
+      while (linestream >> key >> value) {
+
+        // Retiurn the value if the key is "processes"
+        if (key == "processes") {
+          return std::stoi(value);
+        }
+      }
+    }
+  }
+  return 0; 
+}
 
 // TODO: Read and return the number of running processes
-int LinuxParser::RunningProcesses() { return 0; }
+/**
+ * Reads the /proc/stat file to find the line that starts with "procs_running" and returns the value as the total number of running processes. 
+ */
+int LinuxParser::RunningProcesses() {
+  string line; 
+  string key; 
+  string value; 
+  
+  // Read input file stream for the /proc/stat file 
+  std::ifstream stream(kProcDirectory + kStatFilename);
+
+  if (stream.is_open()) {
+    while (std::getline(stream, line)) {
+
+      std::istringstream linestream(line); 
+
+      // Split by space
+      while (linestream >> key >> value) {
+
+        // Retiurn the value if the key is "procs_running"
+        if (key == "procs_running") {
+          return std::stoi(value);
+        }
+      }
+    }
+  }
+  return 0; 
+}
 
 // TODO: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
