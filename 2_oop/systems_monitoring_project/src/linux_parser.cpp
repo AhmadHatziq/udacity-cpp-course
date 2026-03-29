@@ -159,7 +159,31 @@ float LinuxParser::MemoryUtilization() {
   }
 
 // TODO: Read and return the system uptime
-long LinuxParser::UpTime() { return 0; }
+/**
+ * Reads the /proc/uptime file to retrieve the system uptime in seconds. 
+ * The file contains two numbers: 
+ *  1. the first is the total uptime of the system
+ *  2. the amount of idle time summed across all CPUs. 
+ * Eg: $ cat /proc/uptime
+       254.80 2955.02
+ * Returns a long (double is truncated to long) representing the total uptime of the system in seconds.
+ */
+long LinuxParser::UpTime() { 
+  double uptime{0}; 
+  double idleTime{0};
+  string line;
+
+  // Get input file stream for the /proc/uptime file
+  std::ifstream stream(kProcDirectory + kUptimeFilename);
+
+  if (stream.is_open()) {
+    std::getline(stream, line);
+    std::istringstream linestream(line);
+    linestream >> uptime >> idleTime; // Extract the first two numbers from the file
+  }
+
+  return static_cast<long>(uptime);  
+}
 
 // TODO: Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() { return 0; }
