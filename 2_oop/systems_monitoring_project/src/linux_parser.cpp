@@ -278,7 +278,44 @@ vector<string> LinuxParser::CpuUtilization() {
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
+/**
+ * In the file /proc/[pid]/stat, the 14th, 15th, 16th, and 17th values represent utime, stime, cutime, and cstime respectively.
+ * Sums up these 4 values and returns as activie jiffies for the process. 
+ */
+long LinuxParser::ActiveJiffies(int pid) { 
+  vector<string> values;
+
+  // Convert argument pid to string to construct the file path 
+  string pid_str = to_string(pid);
+  std::ifstream filestream (kProcDirectory + pid_str + kStatFilename); // E.g. /proc/5/stat 
+
+  // File is only 1 line. 
+  if (filestream.is_open()) {
+    string line;
+    std::getline(filestream, line);
+    std::istringstream linestream(line);
+
+    // Loop through the line and extract all values as strings
+    string value; 
+    while (linestream >> value) {
+      values.push_back(value);
+    }
+
+    // Note: This breaks if the process name (which is the 2nd value in the file and is enclosed in brackets) contains spaces.
+    // Check if we have at least 17 values to avoid out of range error
+    if (values.size() >= 17) {
+      long utime = stol(values[13]); // 14th value is at index 13
+      long stime = stol(values[14]); // 15th value is at index 14
+      long cutime = stol(values[15]); // 16th value is at index 15
+      long cstime = stol(values[16]); // 17th value is at index 16
+
+      return utime + stime + cutime + cstime;
+    }
+  }
+
+  // Return 0 if the file cannot be opened, read successfully, or does not contain enough values
+  return 0; 
+}
 
 // TODO: Read and return the total number of processes
 int LinuxParser::TotalProcesses() { return 0; }
