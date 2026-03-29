@@ -227,7 +227,6 @@ long LinuxParser::ActiveJiffies() {
   auto j = CpuJiffiesMap();
 
   return j["user"] + j["nice"] + j["system"] + j["irq"] + j["softirq"] + j["steal"];
-         
   }
 
 // TODO: Read and return the number of idle jiffies for the system
@@ -242,8 +241,40 @@ long LinuxParser::IdleJiffies() {
   return j["idle"] + j["iowait"];
 }
 
-// TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+// TODO: Read and return CPU utilization as a vector of strings
+/*
+ * Reads the /proc/stat file to calculate and return CPU utilization as a vector of strings.
+*/
+vector<string> LinuxParser::CpuUtilization() {
+  string line; 
+  vector<string> cpuUtilization;
+
+  // Get input file stream for the /proc/stat file
+  std::ifstream stream(kProcDirectory + kStatFilename);
+
+  if (stream.is_open()) {
+
+    // First line is in the format: cpu  4705 150 2290 1362393 234 0 120 0 0 0
+    std::getline(stream, line);
+    std::istringstream linestream(line);
+
+    // Parse the line to extract jiffy values
+    // Skip the first token ('cpu')
+    linestream >> line; 
+    
+    // Order is in the form: user, nice, system, idle, iowait, irq, softirq, steal, guest, guestNice
+    // Loop and get all the values as strings and push to the vector
+    string value; 
+    while (linestream >> value) {
+      cpuUtilization.push_back(value);
+    }
+
+    return cpuUtilization;
+  }
+
+  // Return {} if the file cannot be opened or read successfully
+  return {}; 
+}
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
