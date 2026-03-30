@@ -480,7 +480,49 @@ string LinuxParser::Uid(int pid) {
 
 // TODO: Read and return the user associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
+/**
+ * Given a PID, looks up the UID (from  /proc/[PID]/status file) and username (from /etc/passwd file). 
+ * Returns the username. 
+ */
+string LinuxParser::User(int pid[[maybe_unused]]) { 
+  string line; 
+
+  // Get UID from PID 
+  string uid = LinuxParser::Uid(pid); 
+
+  /*
+    Sample file contents: 
+    $ cat /etc/passwd
+      root:x:0:0:root:/root:/bin/bash
+      daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+  */
+
+  // Read the passwd file
+  std::ifstream stream(kPasswordPath); 
+
+  // Iterate until we get a match
+  if (stream.is_open()) { 
+    while(std::getline(stream, line)) {
+      
+      // Replace all ':' with whitespaces 
+      std::replace(line.begin(), line.end(), ':', ' ');
+
+      std::istringstream linestream(line); 
+
+      // Parse each token 
+      string passwd_file_username, passwd_file_password, passwd_file_uid, passwd_file_gid; 
+      linestream >> passwd_file_username >> passwd_file_password >> passwd_file_uid >> passwd_file_gid; 
+
+      if (uid == passwd_file_uid){
+        return passwd_file_username; 
+      }
+
+    }
+  }
+
+  // Return empty string if there is no match
+  return string(""); 
+}
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
