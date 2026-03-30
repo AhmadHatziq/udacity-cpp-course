@@ -402,7 +402,42 @@ string LinuxParser::Command(int pid) {
 
 // TODO: Read and return the memory used by a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Ram(int pid[[maybe_unused]]) { return string(); }
+/**
+ * Returns the field 'VmRSS' from the file: /proc/[PID]/status
+ */
+string LinuxParser::Ram(int pid) { 
+  string line; 
+  string pid_str = to_string(pid);
+
+  // PID Status file is at /prod/[PID]/status 
+  std::ifstream stream(kProcDirectory + pid_str + kStatusFilename); 
+
+  /*
+    Sample file contents: 
+      VmPeak:  4300488 kB
+      VmSize:  4287616 kB
+      VmLck:         0 kB
+      VmRSS:    162540 k
+  */
+
+  // Iterate and extract the value with the key "VmRSS"
+  if (stream.is_open()) {
+    while (std::getline(stream, line)) {
+      string key, unit, value; 
+      
+      // Extract the first 3 values, seperated by whitespaces 
+      std::istringstream linestream(line); 
+      linestream >> key >> value >> unit; 
+
+      // Extract the key which contains "VmRss"
+      if (key == "VmRSS:") {
+        return value; 
+      }
+    }
+  }
+
+  return string(); 
+}
 
 // TODO: Read and return the user ID associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
