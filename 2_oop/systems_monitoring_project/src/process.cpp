@@ -5,16 +5,31 @@
 #include <vector>
 
 #include "process.h"
+#include "linux_parser.h"
 
 using std::string;
 using std::to_string;
 using std::vector;
 
+// Class constructor 
+Process::Process(int pid){
+    process_id = pid; 
+}
+
+// More efficient initializer list 
+/*
+// Assigns pid to the private member 'process_id' directly via initializer list 
+Process::Process(int pid): process_id(pid) {}
+*/
+
 // TODO: Return this process's ID
 int Process::Pid() { return process_id; }
 
 // TODO: Return this process's CPU utilization
-float Process::CpuUtilization() { return 0; }
+float Process::CpuUtilization() { 
+
+    return 0; 
+}
 
 // TODO: Return the command that generated this process
 string Process::Command() { return string(); }

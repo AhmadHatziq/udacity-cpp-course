@@ -47,6 +47,7 @@ long ActiveJiffies();
 long ActiveJiffies(int pid);
 long IdleJiffies();
 std::unordered_map<std::string, long> LinuxParser::CpuJiffiesMap(); 
+float ProcessCpuUtilization();
 
 // Processes
 std::string Command(int pid);

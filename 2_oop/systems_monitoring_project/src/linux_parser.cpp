@@ -241,9 +241,18 @@ long LinuxParser::IdleJiffies() {
   return j["idle"] + j["iowait"];
 }
 
+/**
+ * Returns the CPU utilization of a single process given a PID 
+ */
+float LinuxParser::ProcessCpuUtilization(int pid) {
+
+  // TODO: Implement logic for this
+  return 0.0; 
+}
+
 // TODO: Read and return CPU utilization as a vector of strings
 /*
- * Reads the /proc/stat file to calculate and return CPU utilization as a vector of strings.
+ * Reads the /proc/stat file to calculate and return the overall CPU utilization as a vector of strings.
 */
 vector<string> LinuxParser::CpuUtilization() {
   string line; 
