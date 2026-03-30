@@ -484,7 +484,7 @@ string LinuxParser::Uid(int pid) {
  * Given a PID, looks up the UID (from  /proc/[PID]/status file) and username (from /etc/passwd file). 
  * Returns the username. 
  */
-string LinuxParser::User(int pid[[maybe_unused]]) { 
+string LinuxParser::User(int pid) { 
   string line; 
 
   // Get UID from PID 
@@ -526,7 +526,45 @@ string LinuxParser::User(int pid[[maybe_unused]]) {
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+/**
+ * Gets a process uptime by getting system uptime, process start time and converting from jiffies (clock ticks) to seconds 
+ */
+long LinuxParser::UpTime(int pid[[maybe_unused]]) { 
+  std::string line; 
+  double system_uptime{0};
+  long start_time{0}; 
+
+  // Get system uptime from the file /proc/uptime 
+  std::ifstream uptime_stream(kProcDirectory + kUptimeFilename); 
+  if (uptime_stream.is_open()) {
+    uptime_stream >> system_uptime; 
+  }
+
+  // Get process start time 
+  string pid_str = to_string(pid);
+  std::ifstream proc_stream(kProcDirectory + pid_str + kStatFilename); 
+  if (proc_stream.is_open()) {
+    std::getline(proc_stream, line);
+    std::istringstream linestream(line);
+
+    std::string value;
+    int index = 0;
+
+    while(linestream >> value){
+      if (index == 21) {
+        start_time = std::stol(value);
+        break;
+      }
+      index++; 
+    }
+  }
+
+  // Convert jiffies to seconds 
+  long hertz = sysconf(_SC_CLK_TCK); 
+  long process_uptime = static_cast<long>(system_uptime - (static_cast<double>(start_time) / hertz));
+  
+  return process_uptime; 
+}
 
 // Returns a map of CPU jiffies with keys: user, nice, system, idle, iowait, irq, softirq, steal, guest, guestNice
 std::unordered_map<std::string, long> LinuxParser::CpuJiffiesMap() {
