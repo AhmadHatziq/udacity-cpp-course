@@ -26,7 +26,7 @@ Process::Process(int pid): process_id(pid) {}
 int Process::Pid() { return process_id; }
 
 // Return this process's CPU utilization
-float Process::CpuUtilization() { 
+float Process::CpuUtilization() const { 
     int current_process_id = Pid(); 
     float process_cpu_utilization = LinuxParser::ProcessCpuUtilization(current_process_id);
     return process_cpu_utilization; 
@@ -57,6 +57,8 @@ long int Process::UpTime() {
     return LinuxParser::UpTime(Pid());
 }
 
-// TODO: Overload the "less than" comparison operator for Process objects
-// REMOVE: [[maybe_unused]] once you define the function
-bool Process::operator<(Process const& a[[maybe_unused]]) const { return true; }
+// Overload the "less than" comparison operator for Process objects
+// Means: Should a come before b in a sorted list of Process objects?
+bool Process::operator<(Process const& a) const { 
+    return this->CpuUtilization() > a.CpuUtilization();
+}
