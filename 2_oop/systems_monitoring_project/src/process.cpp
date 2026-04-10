@@ -22,16 +22,17 @@ Process::Process(int pid){
 Process::Process(int pid): process_id(pid) {}
 */
 
-// TODO: Return this process's ID
+// Return this process's ID
 int Process::Pid() { return process_id; }
 
-// TODO: Return this process's CPU utilization
+// Return this process's CPU utilization
 float Process::CpuUtilization() { 
-    
-    return 0; 
+    int current_process_id = Pid(); 
+    float process_cpu_utilization = LinuxParser::ProcessCpuUtilization(current_process_id);
+    return process_cpu_utilization; 
 }
 
-// TODO: Return the command that generated this process
+// Return the command that generated this process
 string Process::Command() {
     // Calls the LinuxParser::Command function to get the command associated with this process
     string command = LinuxParser::Command(process_id);
