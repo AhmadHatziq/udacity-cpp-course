@@ -108,7 +108,7 @@ vector<int> LinuxParser::Pids() {
   return pids; // A vector of process IDs 
 }
 
-// TODO: Read and return the system memory utilization
+// Read and return the system memory utilization
 /**
  * Reads the /proc/meminfo file to calculate the sum and return the system's memory utilization as a float.
  */
@@ -159,7 +159,7 @@ float LinuxParser::MemoryUtilization() {
   return memUtilization; 
   }
 
-// TODO: Read and return the system uptime
+// Read and return the system uptime
 /**
  * Reads the /proc/uptime file to retrieve the system uptime in seconds. 
  * The file contains two numbers: 
@@ -186,7 +186,7 @@ long LinuxParser::UpTime() {
   return static_cast<long>(uptime);  
 }
 
-// TODO: Read and return the number of jiffies for the system
+// Read and return the number of jiffies for the system
 /**
  * Reads the /proc/stat file to calculate and return the total number of jiffies for the system.
  * Total jiffies = user + nice + system + idle + iowait + irq + softirq + steal (exclude guest, guestNice)
@@ -215,7 +215,7 @@ long LinuxParser::Jiffies() {
   return 0; 
 }
 
-// TODO: Read and return the number of active jiffies for the system
+// Read and return the number of active jiffies for the system
 /**
  * Reads the /proc/stat file to calculate and return the total number of active jiffies for the system.
  * Active jiffies are calculated as the sum of user, nice, system, irq, softirq, and steal jiffies.
@@ -229,7 +229,7 @@ long LinuxParser::ActiveJiffies() {
   return j["user"] + j["nice"] + j["system"] + j["irq"] + j["softirq"] + j["steal"];
   }
 
-// TODO: Read and return the number of idle jiffies for the system
+// Read and return the number of idle jiffies for the system
 /**
  * Reads the /proc/stat file to calculate and return the total number of idle jiffies for the system.
  * Idle jiffies are calculated as the sum of idle and iowait jiffies, which represent idle time.
@@ -250,7 +250,7 @@ float LinuxParser::ProcessCpuUtilization(int pid) {
   return 0.0; 
 }
 
-// TODO: Read and return CPU utilization as a vector of strings
+// Read and return CPU utilization as a vector of strings
 /*
  * Reads the /proc/stat file to calculate and return the overall CPU utilization as a vector of strings.
 */
@@ -285,7 +285,7 @@ vector<string> LinuxParser::CpuUtilization() {
   return {}; 
 }
 
-// TODO: Read and return the number of active jiffies for a PID
+// Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
 /**
  * In the file /proc/[pid]/stat, the 14th, 15th, 16th, and 17th values represent utime, stime, cutime, and cstime respectively.
@@ -326,7 +326,7 @@ long LinuxParser::ActiveJiffies(int pid) {
   return 0; 
 }
 
-// TODO: Read and return the total number of processes
+// Read and return the total number of processes
 /**
  * Reads the /proc/stat file to find the line that starts with "processes" and returns the value as the total number of processes created since boot. 
  */
@@ -356,7 +356,7 @@ int LinuxParser::TotalProcesses() {
   return 0; 
 }
 
-// TODO: Read and return the number of running processes
+// Read and return the number of running processes
 /**
  * Reads the /proc/stat file to find the line that starts with "procs_running" and returns the value as the total number of running processes. 
  */
@@ -386,7 +386,7 @@ int LinuxParser::RunningProcesses() {
   return 0; 
 }
 
-// TODO: Read and return the command associated with a process
+// Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
 /**
  * Returns the contents of the "/proc/[PID]/cmdline" file. 
@@ -409,7 +409,7 @@ string LinuxParser::Command(int pid) {
   return string(); 
 }
 
-// TODO: Read and return the memory used by a process
+// Read and return the memory used by a process
 // REMOVE: [[maybe_unused]] once you define the function
 /**
  * Returns the field 'VmRSS' from the file: /proc/[PID]/status
@@ -448,7 +448,7 @@ string LinuxParser::Ram(int pid) {
   return string(); 
 }
 
-// TODO: Read and return the user ID associated with a process
+// Read and return the user ID associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
 /**
  * Returns the field 'Uid' from the file: /proc/[PID]/status
@@ -487,7 +487,7 @@ string LinuxParser::Uid(int pid) {
   return string(); 
 }
 
-// TODO: Read and return the user associated with a process
+// Read and return the user associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
 /**
  * Given a PID, looks up the UID (from  /proc/[PID]/status file) and username (from /etc/passwd file). 
@@ -533,7 +533,7 @@ string LinuxParser::User(int pid) {
   return string(""); 
 }
 
-// TODO: Read and return the uptime of a process
+// Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
 /**
  * Gets a process uptime by getting system uptime, process start time and converting from jiffies (clock ticks) to seconds 
