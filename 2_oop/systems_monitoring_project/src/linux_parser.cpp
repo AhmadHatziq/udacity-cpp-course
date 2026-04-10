@@ -242,11 +242,68 @@ long LinuxParser::IdleJiffies() {
 }
 
 /**
- * Returns the CPU utilization of a single process given a PID 
+ * Returns the CPU utilization of a single process given a PID. 
+ * CPU utilization = time process has been running on CPU / total time process has been alive 
  */
 float LinuxParser::ProcessCpuUtilization(int pid) {
+  string line; 
+  string pid_str = to_string(pid); 
 
-  // TODO: Implement logic for this
+  // Get /proc/[ID]/stat file info 
+  // We need utime, stime, cutime, cstime (index 13-16) amd starttime (index 21)
+  // See: https://stackoverflow.com/questions/39066998/what-are-the-meaning-of-values-at-proc-pid-stat
+  /* Example data: 
+    $ cat /proc/10/stat (file is a single line)
+      10 (SessionLeader) S 1 10 10 0 -1 4194624 29 0 0 0 0 0 0 0 20 0 1 0 333 3198976 192 
+      18446744073709551615 1 1 0 0 0 0 0 2147024638 65536 0 0 0 17 4 0 0 0 0 0 0 0 0 0 0 0 0 0
+  */
+
+  // Read /proc/[PID]/stat file 
+  string proc_pid_stat_filepath = kProcDirectory + pid_str + kStatFilename; 
+  std::ifstream stream(proc_pid_stat_filepath); 
+
+  if (stream.is_open()) {
+    // Convert stream to inputstream
+    std::getline(stream, line); 
+    std::istringstream linestream(line); 
+
+    // Variables to store the values 
+    std::vector<string> values;   
+    string value; 
+
+    // Parse by whitespaces 
+    while (linestream >> value) {
+      values.push_back(value); 
+    }
+
+    // Extract required fields 
+    long utime = std::stol(values[13]); 
+    long stime = std::stol(values[14]); 
+    long cutime = std::stol(values[15]); 
+    long cstime = std::stol(values[16]); 
+    long starttime = std::stol(values[21]);
+    
+    // Calculate total CPU time 
+    long total_cpu_time = utime + stime + cutime + cstime;
+
+    // Convert to seconds 
+    long hertz = sysconf(_SC_CLK_TCK);
+    float total_time_seconds = total_cpu_time / (float) hertz; 
+
+    // Get system uptime 
+    long system_uptime = LinuxParser::UpTime(); 
+
+    // Convert process start time to seconds 
+    float starttime_seconds = starttime / (float) hertz; 
+
+    // Process lifetime 
+    float process_lifetime_seconds = system_uptime - starttime_seconds; 
+
+    // Calculate CPU utilization 
+    if(process_lifetime_seconds > 0) {
+      return total_time_seconds / process_lifetime_seconds; 
+    }
+  }
   return 0.0; 
 }
 
@@ -538,7 +595,7 @@ string LinuxParser::User(int pid) {
 /**
  * Gets a process uptime by getting system uptime, process start time and converting from jiffies (clock ticks) to seconds 
  */
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { 
+long LinuxParser::UpTime(int pid) { 
   std::string line; 
   double system_uptime{0};
   long start_time{0}; 
