@@ -39,8 +39,13 @@ string Process::Command() {
     return command; 
 }
 
-// TODO: Return this process's memory utilization
-string Process::Ram() { return string(); }
+// Return this process's memory utilization
+// Uses KB units, as per the LinuxParser::Ram function
+string Process::Ram() { 
+    int current_process_id = Pid(); 
+    string process_ram = LinuxParser::Ram(current_process_id);
+    return process_ram;
+}
 
 // TODO: Return the user (name) that generated this process
 string Process::User() { return string(); }

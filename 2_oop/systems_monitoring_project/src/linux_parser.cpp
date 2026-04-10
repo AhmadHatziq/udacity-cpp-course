@@ -466,7 +466,7 @@ string LinuxParser::Command(int pid) {
   return string(); 
 }
 
-// Read and return the memory used by a process
+// Read and return the memory used by a process (in KB)
 // REMOVE: [[maybe_unused]] once you define the function
 /**
  * Returns the field 'VmRSS' from the file: /proc/[PID]/status
@@ -475,7 +475,7 @@ string LinuxParser::Ram(int pid) {
   string line; 
   string pid_str = to_string(pid);
 
-  // PID Status file is at /prod/[PID]/status 
+  // PID Status file is at /proc/[PID]/status 
   std::ifstream stream(kProcDirectory + pid_str + kStatusFilename); 
 
   /*
@@ -502,7 +502,7 @@ string LinuxParser::Ram(int pid) {
     }
   }
 
-  return string(); 
+  return string("0"); 
 }
 
 // Read and return the user ID associated with a process
