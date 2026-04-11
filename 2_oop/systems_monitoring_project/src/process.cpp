@@ -27,7 +27,7 @@ int Process::Pid() { return process_id; }
 
 // Return this process's CPU utilization
 float Process::CpuUtilization() const { 
-    int current_process_id = Pid(); 
+    int current_process_id = process_id; 
     float process_cpu_utilization = LinuxParser::ProcessCpuUtilization(current_process_id);
     return process_cpu_utilization; 
 }

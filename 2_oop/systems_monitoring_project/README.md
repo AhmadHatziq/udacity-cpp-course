@@ -39,3 +39,22 @@ This project uses [Make](https://www.gnu.org/software/make/). The Makefile has f
 5. Implement the `System`, `Process`, and `Processor` classes, as well as functions within the `LinuxParser` namespace.
 
 6. Submit!
+
+## Compiling and running: 
+```
+# Install ncurses first 
+sudo apt get update 
+sudo apt install libncurses-dev
+
+# Create build folder 
+mkdir build
+cd build 
+
+# From build folder, run cmake to generate make file 
+# Read CMakeLists.txt file, generate makefile inside /build folder 
+cmake .. 
+
+# Run makefile 
+make 
+./monitor
+```

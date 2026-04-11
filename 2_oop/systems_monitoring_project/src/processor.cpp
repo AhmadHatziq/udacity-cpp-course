@@ -36,7 +36,7 @@ float Processor::Utilization() {
     // Calculate current times
     long currentIdle = idle + iowait;
     long currentTotal = user + nice + system + idle + iowait + irq + softirq + steal;
-    long currentActive = currentTotal - currentIdle;
+    // long currentActive = currentTotal - currentIdle;
 
     // Check previous times. If 0, this is the first call and we cannot calculate utilization yet. Store current times and return 0.0. 
     if (prevTotal == 0 || prevIdle == 0) {
