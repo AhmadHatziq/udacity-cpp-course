@@ -7,6 +7,8 @@ class Processor {
 
   // TODO: Declare any necessary private members
  private:
+  long prevIdle{0};  // To store previous idle time for CPU utilization calculation
+  long prevTotal{0}; // To store previous total time for CPU utilization calculation
 };
 
 #endif
