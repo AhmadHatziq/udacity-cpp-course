@@ -5,9 +5,9 @@ g++ exercise_3_solution.cpp -o exercise_3
 Expected output: 
 >>> Starting main thread
 >>> Original thread_id value: 42
->>> Value of thread_id within the pass by value function: 126
->>> Original thread_id value after pass by value: 42
->>> Value of thread_id within the pass by reference function: 336
+>>> Value of thread_id within the pass by value function: 126. // Local copy is 42 x 3 
+>>> Original thread_id value after pass by value: 42 // Original value is unchanged
+>>> Value of thread_id within the pass by reference function: 336 // There is lambda function and std::ref
 >>> Original thread_id value after pass by reference: 336
 >>> Main thread ending
 */
