@@ -7,7 +7,7 @@ generate random numbers and count occurrences of 42. We'll compare results
 with and without atomic operations to show the importance of thread safety.
 
 To compile and run:
-g++ exercise_3_solution.cpp -o running_exercise -pthread && ./running_exercise
+g++ monte_carlo_atomic.cpp -o running_exercise -pthread && ./running_exercise
 
 Learning objectives:
 - Create atomic counters for thread-safe counting
@@ -55,13 +55,13 @@ void monte_carlo_atomic_worker(int thread_id) {
     }
     
     // Atomically add our local count to the global counter
-    atomic_counter.fetch_add(local_count);
+    atomic_counter.fetch_add(local_count); // Thread-safe increment of the global counter
     
     std::cout << "[Atomic Thread " << thread_id << "] Found " << local_count 
               << " occurrences of " << TARGET_NUMBER << std::endl;
 }
 
-// Function that generates random numbers and counts 42s using REGULAR counter (race condition!)
+// Function that generates random numbers and counts 42s using REGULAR counter global var (race condition!)
 void monte_carlo_regular_worker(int thread_id) {
     // Create random number generator for this thread
     std::random_device rd;
@@ -78,7 +78,7 @@ void monte_carlo_regular_worker(int thread_id) {
         if (random_number == TARGET_NUMBER) {
             local_count++;
             // RACE CONDITION: Multiple threads updating regular_counter simultaneously!
-            regular_counter++; // This is NOT thread-safe!
+            regular_counter++; // This is NOT thread-safe as there are 3 steps (read, modify, write) that can be interleaved between threads, causing lost updates
         }
     }
     
@@ -98,6 +98,7 @@ void run_atomic_test() {
     auto start_time = std::chrono::high_resolution_clock::now();
     
     // Create and start threads
+    // Once a thread is created, it will automatically start executing the worker function (depending on the OS scheduler)
     for (int i = 1; i <= NUM_THREADS; ++i) {
         threads.emplace_back(monte_carlo_atomic_worker, i);
     }
