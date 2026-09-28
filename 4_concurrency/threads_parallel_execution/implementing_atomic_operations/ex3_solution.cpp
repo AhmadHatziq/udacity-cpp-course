@@ -99,7 +99,7 @@ void run_atomic_test() {
     
     // Create and start threads
     for (int i = 1; i <= NUM_THREADS; ++i) {
-        threads.emplace_back(monte_carlo_atomic_worker, i);
+        threads.emplace_back(monte_carlo_atomic_worker, i); // Each worker is collected in a vector 
     }
     
     // Wait for all threads to complete
