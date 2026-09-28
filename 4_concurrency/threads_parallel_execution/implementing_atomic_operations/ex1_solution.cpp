@@ -29,6 +29,7 @@ struct ServerResponse {
     std::string data;
     std::string server_name;
     
+    // Constructor using a member initializer list 
     ServerResponse(int code, const std::string& response_data, const std::string& server)
         : status_code(code), data(response_data), server_name(server) {}
 };
