@@ -32,13 +32,16 @@ public:
     OrderedPrinter() : next_thread_to_execute(1) {}
     
     void ordered_print(int thread_id, const std::string& location_name) {
-        std::unique_lock<std::mutex> lock(coordination_mutex);
+        std::unique_lock<std::mutex> lock(coordination_mutex); // RAII unique lock 
         
         // Wait for this thread's turn to execute
+        // Use condition variable, predicate is when the next_thread_to_execute var matches arg thread_id 
         turn_signal.wait(lock, [this, thread_id] {
             return next_thread_to_execute == thread_id;
         });
         
+        // Once predicate matches, will proceed with execution of below code. 
+
         // This thread's turn - execute the printing sequence
         std::cout << "=== " << location_name << " Restaurant Announcement ===" << std::endl;
         std::cout << "Thread " << thread_id << " (" << location_name << ") starting daily specials announcement..." << std::endl;
@@ -53,8 +56,8 @@ public:
         std::cout << std::endl;
         
         // Signal that the next thread can proceed
-        next_thread_to_execute++;
-        turn_signal.notify_all();
+        next_thread_to_execute++; // Starts from 1. Execution order is increasing order
+        turn_signal.notify_all(); // Asks all condition vars to check predicate. If predicate okay, proceed for that thread. 
     }
 };
 
@@ -94,12 +97,17 @@ int main() {
     // Create threads (they will finish preparation at different times)
     std::cout << "Starting all restaurant locations simultaneously..." << std::endl;
     for (int i = 1; i <= num_locations; ++i) {
+
+        // Each call to emplace_back() constructs a std::thread directly inside the vector
+        // and that thread starts running as soon as its std::thread object is successfully constructed.
         restaurant_threads.emplace_back(
             restaurant_announcement, 
             std::ref(printer), 
             i, 
             locations[i-1]
         );
+
+        // Thread 1 → restaurant_announcement(printer, 1, "Downtown") 
     }
     
     // Wait for all restaurants to complete their coordinated announcements
