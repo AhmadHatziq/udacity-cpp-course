@@ -6,7 +6,7 @@ This exercise demonstrates thread coordination using condition variables
 to implement a cache that automatically expires data after a TTL period.
 
 To compile and run:
-g++ -std=c++11 -pthread exercise_2_solution.cpp -o exercise_2_solution && ./exercise_2_solution
+g++ -std=c++11 -pthread exercise_2_solution.cpp -o demo && ./demo
 
 Expected behavior:
 - Multiple threads can store and retrieve cached values

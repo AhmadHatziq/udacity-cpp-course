@@ -10,6 +10,9 @@
 #include <thread>
 #include <vector>
 
+// Run with: 
+// g++ -std=c++17 -Wall -Wextra -pthread recipe_example.cpp -o demo && ./demo
+
 template<typename RecipeResult>
 class CollaborativeRecipeManager {
 private:

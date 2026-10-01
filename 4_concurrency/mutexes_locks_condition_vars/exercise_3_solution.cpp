@@ -6,8 +6,7 @@ This exercise demonstrates a complete producer-consumer system where one produce
 generates work items and multiple consumers compete to process them efficiently.
 
 To compile and run:
-g++ -std=c++11 -pthread exercise_3_solution.cpp -o exercise_3_solution
-./exercise_3_solution
+g++ -std=c++11 -pthread exercise_3_solution.cpp -o demo && ./demo
 
 Expected behavior:
 - One producer generates work items and adds to queue
@@ -44,7 +43,7 @@ public:
     
     // Consumer tries to get work from the queue
     bool get_work(int& work_item) {
-        std::unique_lock<std::mutex> lock(queue_mutex);
+        std::unique_lock<std::mutex> lock(queue_mutex); // Mutex prevents multiple consumers from taking the same object 
         
         // Wait until work is available or production is complete
         work_available.wait(lock, [this] {

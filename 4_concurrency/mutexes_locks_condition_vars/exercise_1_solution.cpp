@@ -7,7 +7,7 @@ order, ensuring multiple threads print in a predetermined sequence regardless
 of thread scheduling or timing.
 
 To compile and run:
-g++ exercise_1_solution.cpp -o running_exercise  -pthread && ./running_exercise
+g++ exercise_1_solution.cpp -o demo -pthread && ./demo 
 
 Expected behavior:
 - Threads finish preparation at different times
