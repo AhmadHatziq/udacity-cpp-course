@@ -6,8 +6,7 @@ This exercise demonstrates thread coordination using condition variables
 to implement a cache that automatically expires data after a TTL period.
 
 To compile and run:
-g++ -std=c++11 -pthread exercise_2_solution.cpp -o exercise_2_solution
-./exercise_2_solution
+g++ -std=c++11 -pthread exercise_2_solution.cpp -o exercise_2_solution && ./exercise_2_solution
 
 Expected behavior:
 - Multiple threads can store and retrieve cached values
@@ -35,14 +34,15 @@ private:
     };
     
     std::unordered_map<std::string, CacheItem> cache;
-    std::mutex cache_mutex;
-    std::condition_variable key_available;
+    std::mutex cache_mutex; // Ensures only 1 thread at a time can access the hashmap 
+    std::condition_variable key_available; // Allows consumers to sleep while waiting for a valid entry 
     bool cleanup_running;
     
 public:
     TTLCache() : cleanup_running(true) {}
     
     // Store a value in the cache with TTL
+    // Inserts an entry and wakes consumers up 
     void put(const std::string& key, int value, std::chrono::seconds ttl) {
         std::lock_guard<std::mutex> lock(cache_mutex);
         cache.emplace(key, CacheItem(value, ttl));
@@ -59,7 +59,7 @@ public:
             return -1; // Key not found
         }
         
-        // Check if item has expired
+        // Check if item has expired but exists 
         if (std::chrono::steady_clock::now() > it->second.expiry_time) {
             cache.erase(it);
             return -1; // Expired
@@ -69,6 +69,7 @@ public:
     }
     
     // Wait for a key to become available (with timeout)
+    // Sleeps until a key is valid or times out    
     bool wait_for_key(const std::string& key, std::chrono::seconds timeout) {
         std::unique_lock<std::mutex> lock(cache_mutex);
         
@@ -114,6 +115,7 @@ public:
 };
 
 // Thread function that stores values in cache
+// For a single producer, insert 3 values 
 void producer_thread(TTLCache& cache, int thread_id) {
     for (int i = 0; i < 3; ++i) {
         std::string key = "key_" + std::to_string(thread_id) + "_" + std::to_string(i);
@@ -128,6 +130,7 @@ void producer_thread(TTLCache& cache, int thread_id) {
 }
 
 // Thread function that retrieves values from cache
+// For a single consumer, only look for keys from thread 1 
 void consumer_thread(TTLCache& cache, int thread_id) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Let producer start
     
@@ -164,13 +167,13 @@ int main() {
     // Start cleanup thread
     std::thread cleanup_thread(&TTLCache::cleanup_expired, &cache);
     
-    // Start producer threads
+    // Start producer threads. 3 producers 
     std::vector<std::thread> producers;
     for (int i = 1; i <= 2; ++i) {
         producers.emplace_back(producer_thread, std::ref(cache), i);
     }
     
-    // Start consumer threads
+    // Start consumer threads, 3 consumers 
     std::vector<std::thread> consumers;
     for (int i = 1; i <= 2; ++i) {
         consumers.emplace_back(consumer_thread, std::ref(cache), i);
