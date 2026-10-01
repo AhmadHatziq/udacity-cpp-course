@@ -1,3 +1,10 @@
+#include <string>
+#include <chrono>
+#include <vector>
+#include <thread>
+#include <random>
+#include <iostream>
+
 template<typename OrderType>
 class RestaurantOrderQueue {
 private:
@@ -17,35 +24,47 @@ private:
 public:
     explicit RestaurantOrderQueue(size_t max_capacity) : maximum_queue_capacity(max_capacity) {}
     
+    // Producer side: Sends item to the queue if got capacity 
     bool submit_order(OrderType order, std::chrono::milliseconds timeout = std::chrono::milliseconds::max()) {
-        std::unique_lock<std::mutex> lock(queue_mutex);
+        std::unique_lock<std::mutex> lock(queue_mutex); // Mutex to lock the queue. Shared with consumer 
         
-        // Wait for queue capacity with timeout
+        // Wait for queue capacity with timeout. While waiting, mutex is released. 
+        // Lambda function predicate: Proceed when the queue has available capacity or the restaurant is closed
         if (!queue_capacity_available.wait_for(lock, timeout, [this] {
             return order_queue.size() < maximum_queue_capacity || restaurant_closed;
         })) {
+            // Timeout branch: When time out, reject the order and increment atomic counter 
             orders_rejected_due_to_capacity.fetch_add(1);
             return false;  // Timeout - queue full too long
         }
         
+        // Lambda function: Will exit if restaurant is closed 
         if (restaurant_closed) {
             return false;  // Not accepting new orders
         }
-        
+
+        // Proceed with processing order 
         order_queue.push(std::move(order));
         total_orders_received.fetch_add(1);
         
+        // Inform condition variable of kitchen staff that there is something in the queue 
         orders_available.notify_one();  // Wake waiting kitchen staff
         return true;
     }
     
+    // Consumer side: Processes items from the queue 
+    // Returns either OrderType object or std::nullopt
     std::optional<OrderType> get_next_order(std::chrono::milliseconds timeout = std::chrono::milliseconds::max()) {
-        std::unique_lock<std::mutex> lock(queue_mutex);
+        // Create a std::unique_lock object named lock, and have it acquire/manage the mutex named queue_mutex
+        std::unique_lock<std::mutex> lock(queue_mutex); // Shared mutex with producer, mutex is called "lock"
         
         // Wait for orders with timeout
+        // Lambda predicate: Stop idling if restaurant is closed or queue is not empty 
+        // While idling, release the mutex 
         if (!orders_available.wait_for(lock, timeout, [this] {
             return !order_queue.empty() || restaurant_closed;
         })) {
+            // timeout branch 
             return std::nullopt;  // Timeout - no orders available
         }
         
@@ -53,6 +72,7 @@ public:
             return std::nullopt;  // Restaurant closed and no remaining orders
         }
         
+        // Process items 
         OrderType next_order = std::move(order_queue.front());
         order_queue.pop();
         total_orders_completed.fetch_add(1);
@@ -62,6 +82,8 @@ public:
     }
     
     void close_restaurant(bool complete_remaining_orders = true) {
+        // Define a scoped block for RAII lock / mutex 
+        // Only the state change (restaurant_closed=true;) requires the mutex 
         {
             std::lock_guard<std::mutex> lock(queue_mutex);
             restaurant_closed = true;
@@ -73,7 +95,9 @@ public:
             }
         }
         
+        // Unlock the mutex by going out of {} scope 
         // Wake all waiting threads
+        // Do not wake all with mutex activated
         orders_available.notify_all();
         queue_capacity_available.notify_all();
     }
@@ -100,13 +124,6 @@ public:
         };
     }
 };
-
-#include <string>
-#include <chrono>
-#include <vector>
-#include <thread>
-#include <random>
-#include <iostream>
 
 struct RestaurantOrder {
     int table_number;
