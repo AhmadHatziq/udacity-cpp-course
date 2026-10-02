@@ -31,30 +31,50 @@ ChatBot::~ChatBot()
 void ChatBot::ReceiveMessageFromUser(std::string message)
 {
     typedef std::pair<GraphEdge *, int> EdgeDist;
-    std::vector<EdgeDist> levDists;
+    std::vector<EdgeDist> levDists; // Levenshtein Distance 
     std::vector<GraphEdge *> keywordMatches;
     std::string userInputLower = message;
-    std::transform(userInputLower.begin(), userInputLower.end(), userInputLower.begin(), ::tolower);
+    
+    // Added clearer representation below. Converts every character in userInputLower to lowercase, updating the same string
+    // std::transform(userInputLower.begin(), userInputLower.end(), userInputLower.begin(), ::tolower);
+    std::transform(
+        userInputLower.begin(),  // Start of input
+        userInputLower.end(),    // End of input (one past the last character)
+        userInputLower.begin(),  // Start of output: overwrite the same string
+        ::tolower               // Function applied to each character
+    );
+
     // First, check for direct keyword containment (case-insensitive)
     for (size_t i = 0; i < _currentNode->GetNumberOfChildEdges(); ++i)
     {
         GraphEdge *edge = _currentNode->GetChildEdgeAtIndex(i);
         for (auto keyword : edge->GetKeywords())
-        {
+        {   
+            // Change keyword to lowercase for easier comparison 
             std::string keywordLower = keyword;
             std::transform(keywordLower.begin(), keywordLower.end(), keywordLower.begin(), ::tolower);
+
+            // If there is a match, add the edge 
+            // Returns std::string::npos if no match exists
             if (userInputLower.find(keywordLower) != std::string::npos) {
                 keywordMatches.push_back(edge);
                 break; // Only need one keyword match per edge
             }
         }
     }
+
+    /*
+    Chooses the chatbot’s next conversation node using this priority:
+        1. Use the first direct keyword match.
+        2. Otherwise, choose the keyword with the smallest Levenshtein distance.
+        3. If there are no keywords to compare, return to the root node.
+    */
     GraphNode *newNode = nullptr;
     if (!keywordMatches.empty()) {
         // If multiple matches, pick the first (or could add more logic)
         newNode = keywordMatches[0]->GetChildNode();
     } else {
-        // Fall back to Levenshtein distance
+        // No matches, fall back to Levenshtein distance
         for (size_t i = 0; i < _currentNode->GetNumberOfChildEdges(); ++i)
         {
             GraphEdge *edge = _currentNode->GetChildEdgeAtIndex(i);
@@ -64,13 +84,17 @@ void ChatBot::ReceiveMessageFromUser(std::string message)
                 levDists.push_back(ed);
             }
         }
+
+        // If there are elements in the Levehnstein vector: 
         if (levDists.size() > 0)
-        {
+        {   
+            // Sort the vector, choose the first element ie closest in terms of Levehnstein distance 
             std::sort(levDists.begin(), levDists.end(), [](const EdgeDist &a, const EdgeDist &b) { return a.second < b.second; });
             newNode = levDists.at(0).first->GetChildNode();
         }
         else
-        {
+        {   
+            // If no match at all, use the root node 
             newNode = _rootNode;
         }
     }

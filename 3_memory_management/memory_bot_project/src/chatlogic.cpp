@@ -62,6 +62,7 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
         while (getline(file, lineStr))
         {
             // extract all tokens from current line
+            // Sample line: <TYPE:EDGE><ID:0><PARENT:0><CHILD:1><KEYWORD:pointer><KEYWORD:smart pointer>
             tokenlist tokens;
             while (lineStr.size() > 0)
             {
@@ -195,7 +196,7 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
 
 }
 
-#ifdef GUI_APP
+#ifdef GUI_APP  // Skipped as GUI_APP is not defined here.
 void ChatLogic::SetPanelDialogHandle(ChatBotPanelDialog *panelDialog)
 {
     _panelDialog = panelDialog;
