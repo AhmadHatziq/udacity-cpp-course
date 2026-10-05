@@ -5,6 +5,7 @@
 #include "chatlogic.h"
 
 // Simple CLI version of SendMessageToUser
+// ChatLogicCLI is a subclass of ChatLogic
 class ChatLogicCLI : public ChatLogic {
 public:
     void SendMessageToUser(std::string message) override {
@@ -24,6 +25,8 @@ int main() {
     }
     std::string userInput;
     std::cout << "Type 'quit' to exit at anytime." << std::endl;
+
+    // Main loop for getting inputs from user 
     while (true) {
         std::cout << "You: ";
         std::getline(std::cin, userInput);
