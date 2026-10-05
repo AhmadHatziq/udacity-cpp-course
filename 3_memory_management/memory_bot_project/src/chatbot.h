@@ -23,11 +23,22 @@ public:
     ChatBot(std::string filename); // constructor (filename is ignored in CLI)
     ~ChatBot();
 
-    // TODO the following:
-        // TODO: add copy constructor
-        // TODO: add copy assignment operator
-        // TODO: add move constructor
-        // TODO: add move assignment operator
+    // DONE the following:
+    // DONE: add copy constructor
+    // Copy constructor - Creaes a new object from an existing object 
+    ChatBot(const ChatBot &other);
+
+    // DONE: add copy assignment operator
+    // Copy assignment - Replaces contents of an existing obj with another existing obj 
+    ChatBot &operator=(const ChatBot &other);
+
+    // DONE: add move constructor
+    // Move constructor - Creates new obj by stealing resources from another object 
+    ChatBot(ChatBot &&other) noexcept;
+
+    // DONE: add move assignment operator
+    // Move assignment - Transfers resources into an already existing object 
+    ChatBot &operator=(ChatBot &&other) noexcept;
     // END OF TODO
 
     // getters / setters
