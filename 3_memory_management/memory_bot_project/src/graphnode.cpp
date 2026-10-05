@@ -27,7 +27,8 @@ void GraphNode::AddEdgeToChildNode(GraphEdge* edge)
     _childEdges.push_back(edge); // TODO
 }
 
-
+// Store the chatbot pointer and set this node as its current node.
+// Used for initial setup (to root node) and chatbot navigation (subsequent operations)
 void GraphNode::moveChatbotHere(ChatBot* chatbot) 
 {
     _chatBot = chatbot;
