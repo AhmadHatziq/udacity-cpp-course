@@ -172,6 +172,7 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
                             AddAllTokensToElement("KEYWORD", tokens, *edge);
 
                             // TODO: store reference in child node and parent node
+                            // Parent node owns the edge. Child node observes the same edge. 
                             (*childNode)->AddEdgeToParentNode(edge);  // TODO: add non-owning reference
                             (*parentNode)->AddEdgeToChildNode(edge); // TODO: transfer ownership to parent node
                             // END OF TODO

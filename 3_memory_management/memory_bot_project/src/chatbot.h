@@ -39,7 +39,7 @@ public:
     // DONE: add move assignment operator
     // Move assignment - Transfers resources into an already existing object 
     ChatBot &operator=(ChatBot &&other) noexcept;
-    // END OF TODO
+    // END OF T̶O̶D̶O̶
 
     // getters / setters
     void SetCurrentNode(GraphNode *node);

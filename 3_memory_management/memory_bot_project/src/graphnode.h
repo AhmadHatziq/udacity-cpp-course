@@ -15,11 +15,16 @@ private:
 
     //// TODO
     
+    // Owns outgoing edges from this node to its child nodes.
     // data handles (owned)
-    std::vector<GraphEdge *> _childEdges;  // edges to subsequent nodes
+    // std::vector<GraphEdge *> _childEdges;  // edges to subsequent nodes
+    std::vector<std::unique_ptr<GraphEdge>> _childEdges; // Use unique_ptr 
 
+    // Observes incoming edges from parent nodes to this node. These edges are owned by their respective parent nodes.
     // data handles (not owned)
     std::vector<GraphEdge *> _parentEdges; // edges to preceding nodes 
+
+    // Chatbot pointer 
     ChatBot *_chatBot;
    
     //// End of TODO
@@ -44,6 +49,8 @@ public:
     // proprietary functions
     void AddToken(std::string token); // add answers to list
     void AddEdgeToParentNode(GraphEdge *edge);
+    
+    void AddEdgeToChildNode(std::unique_ptr<GraphEdge> edge);
     void AddEdgeToChildNode(GraphEdge *edge); // TODO
 
     void moveChatbotHere(ChatBot *newNode); // TODO
