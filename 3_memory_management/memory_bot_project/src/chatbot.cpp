@@ -28,8 +28,13 @@ ChatBot::~ChatBot()
     std::cerr << ">>> Rule of Five Component: ChatBot Destructor <<<" << std::endl;
 }
 
+// Main function to handle user message
+// Finds the next matching node (based on Levehnstein distance of keywords) and 
+// moves the chatbot to that node via "_currentNode->MoveChatbotToNewNode(newNode)" 
 void ChatBot::ReceiveMessageFromUser(std::string message)
-{
+{   
+
+    // Init vars 
     typedef std::pair<GraphEdge *, int> EdgeDist;
     std::vector<EdgeDist> levDists; // Levenshtein Distance 
     std::vector<GraphEdge *> keywordMatches;
@@ -45,6 +50,7 @@ void ChatBot::ReceiveMessageFromUser(std::string message)
     );
 
     // First, check for direct keyword containment (case-insensitive)
+    // Note that keywords are stored in edges. Answers are stored in nodes. 
     for (size_t i = 0; i < _currentNode->GetNumberOfChildEdges(); ++i)
     {
         GraphEdge *edge = _currentNode->GetChildEdgeAtIndex(i);
@@ -102,22 +108,31 @@ void ChatBot::ReceiveMessageFromUser(std::string message)
 }
 
 void ChatBot::SetCurrentNode(GraphNode *node)
-{
+{   
+    // Sets current node to be the argument node 
     _currentNode = node;
-    std::vector<std::string> answers = _currentNode->GetAnswers();
-    std::mt19937 generator(int(std::time(0)));
+
+    std::vector<std::string> answers = _currentNode->GetAnswers(); // Extract current node answers 
+    std::mt19937 generator(int(std::time(0))); // Create a random number given current time as the seed 
     std::uniform_int_distribution<int> dis(0, answers.size() - 1);
-    std::string answer = answers.at(dis(generator));
+    std::string answer = answers.at(dis(generator)); // Gets a random answer string, based off the random generated index 
+
+    // Sends the answer string to the user 
     _chatLogic->SendMessageToUser(answer);
+
     // If the answer contains the reset message, reset to root and print the root answer
     if (answer.find("There are no more topics in this section, starting over!") != std::string::npos) {
         if (_currentNode != _rootNode) {
+            
+            // Set chatbot to root node. The move will call SetCurrentNode on the root node, which will print the welcome message.
             _currentNode->MoveChatbotToNewNode(_rootNode);
-            // The move will call SetCurrentNode on the root node, which will print the welcome message.
+            // No need to set the node as node setting is already done. 
+            
         }
     }
 }
 
+// Computes Levehnstein Distance given 2 strings: Used to see how similar the 2 strings are to each other. 
 int ChatBot::ComputeLevenshteinDistance(std::string s1, std::string s2)
 {
     std::transform(s1.begin(), s1.end(), s1.begin(), ::toupper);
