@@ -26,7 +26,7 @@ ChatBot::ChatBot(const ChatBot &other)
       _rootNode(other._rootNode),
       _chatLogic(other._chatLogic)
 {
-    std::cerr << ">>> ChatBot Copy Constructor <<<" << std::endl;
+    std::cerr << ">>> Rule of Five Component: ChatBot Copy Constructor <<<" << std::endl;
 }
 
 // DONE: add copy assignment operator
@@ -34,7 +34,7 @@ ChatBot::ChatBot(const ChatBot &other)
 // Used via b = a; 
 ChatBot &ChatBot::operator=(const ChatBot &other)
 {
-    std::cerr << ">>> ChatBot Copy Assignment <<<" << std::endl;
+    std::cerr << ">>> Rule of Five Component: ChatBot Copy Assignment <<<" << std::endl;
 
     if (this != &other)
     {
@@ -54,7 +54,7 @@ ChatBot::ChatBot(ChatBot &&other) noexcept
       _rootNode(other._rootNode),
       _chatLogic(other._chatLogic)
 {
-    std::cerr << ">>> ChatBot Move Constructor <<<" << std::endl;
+    std::cerr << ">>> Rule of Five Component: ChatBot Move Constructor <<<" << std::endl;
 
     other._chatLogic = nullptr;
     other._currentNode = nullptr;
@@ -67,7 +67,7 @@ ChatBot::ChatBot(ChatBot &&other) noexcept
 // Used via b = std::move(a); 
 ChatBot &ChatBot::operator=(ChatBot &&other) noexcept
 {
-    std::cerr << ">>> ChatBot Move Assignment <<<" << std::endl;
+    std::cerr << ">>> Rule of Five Component: ChatBot Move Assignment <<<" << std::endl;
 
     if (this != &other)
     {
