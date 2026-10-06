@@ -17,14 +17,14 @@ ChatBot::ChatBot()
     _currentNode = nullptr; 
 }
 
-// TODO the following:
+// T̶O̶D̶O̶ the following: 
 // DONE: add copy constructor
 // Copy constructor - Creaes a new object from an existing object 
 // Used via: ChatBot b(a); 
 ChatBot::ChatBot(const ChatBot &other)
-    : _chatLogic(other._chatLogic),
-      _currentNode(other._currentNode),
-      _rootNode(other._rootNode)
+    : _currentNode(other._currentNode),
+      _rootNode(other._rootNode),
+      _chatLogic(other._chatLogic)
 {
     std::cerr << ">>> ChatBot Copy Constructor <<<" << std::endl;
 }
@@ -38,9 +38,9 @@ ChatBot &ChatBot::operator=(const ChatBot &other)
 
     if (this != &other)
     {
-        _chatLogic = other._chatLogic;
         _currentNode = other._currentNode;
         _rootNode = other._rootNode;
+        _chatLogic = other._chatLogic;
     }
 
     return *this;
@@ -50,9 +50,9 @@ ChatBot &ChatBot::operator=(const ChatBot &other)
 // Move constructor - Creates new obj by stealing resources from another object 
 // Used via: ChatBot b(std::move(a)); 
 ChatBot::ChatBot(ChatBot &&other) noexcept
-    : _chatLogic(other._chatLogic),
-      _currentNode(other._currentNode),
-      _rootNode(other._rootNode)
+    : _currentNode(other._currentNode),
+      _rootNode(other._rootNode),
+      _chatLogic(other._chatLogic)
 {
     std::cerr << ">>> ChatBot Move Constructor <<<" << std::endl;
 
@@ -82,7 +82,7 @@ ChatBot &ChatBot::operator=(ChatBot &&other) noexcept
 
     return *this;
 }
-// END OF TODO
+// END OF T̶O̶D̶O̶
 
 ChatBot::~ChatBot()
 {
