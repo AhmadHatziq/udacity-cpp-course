@@ -5,6 +5,7 @@
 #include <iterator>
 #include <tuple>
 #include <algorithm>
+#include <utility>
 
 #include "graphedge.h"
 #include "graphnode.h"
@@ -163,14 +164,28 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
                             // String to integer: std::stoi 
                             auto parentNode = std::find_if(_nodes.begin(), _nodes.end(), [&parentToken](const std::unique_ptr<GraphNode> &node) { return node->GetID() == std::stoi(parentToken->second); }); // TODO
                             auto childNode = std::find_if(_nodes.begin(), _nodes.end(), [&childToken](const std::unique_ptr<GraphNode> &node) { return node->GetID() == std::stoi(childToken->second); }); // TODO
+                            
+                            // Check that both endpoint nodes are valid 
+                            if (parentNode == _nodes.end() || childNode == _nodes.end())
+                            {
+                                std::cerr << "Error: Edge refers to an unknown node." << std::endl;
+                                continue;
+                            }
 
                             // TODO: create new edge
                             // Edges observe nodes; they do not own them.
-                            GraphEdge *edge = new GraphEdge(id);
+
+                            // Change from raw pointer to smart pointer 
+                            auto edge = std::make_unique<GraphEdge>(id);
+                            // GraphEdge *edge = new GraphEdge(id);
+                            
+                            // Set parent and child nodes for the edge 
                             // edge->SetChildNode(*childNode);
                             // edge->SetParentNode(*parentNode);
                             edge->SetChildNode((*childNode).get());
                             edge->SetParentNode((*parentNode).get());
+                            
+                            // Remove edge vector as edges are now stored/owned by parent nodes 
                             //_edges.push_back(edge);
                             // END OF TODO
 
@@ -179,8 +194,8 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
 
                             // TODO: store reference in child node and parent node
                             // Parent node owns the edge. Child node observes the same edge. 
-                            (*childNode)->AddEdgeToParentNode(edge);  // TODO: add non-owning reference
-                            (*parentNode)->AddEdgeToChildNode(edge); // TODO: transfer ownership to parent node
+                            (*childNode)->AddEdgeToParentNode(edge.get());  // TODO: add non-owning reference
+                            (*parentNode)->AddEdgeToChildNode(std::move(edge)); // TODO: transfer ownership to parent node
                             // END OF TODO
                         }
                     }

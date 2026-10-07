@@ -27,12 +27,14 @@ void GraphNode::AddEdgeToParentNode(GraphEdge *edge)
 
 // Child edges: outgoing edges from this node to its child nodes.
 // Is owned. Need to transfer ownership. 
+// Overload to handle GraphEdge pointer 
 void GraphNode::AddEdgeToChildNode(GraphEdge* edge)
 {
     //_childEdges.push_back(edge); // TODO
     _childEdges.push_back(std::unique_ptr<GraphEdge>(edge));
 }
 
+// Overload to handle std::unique_ptr<GraphEdge>
 void GraphNode::AddEdgeToChildNode(std::unique_ptr<GraphEdge> edge)
 {
     // Transfer ownership into this node's outgoing-edge container.
