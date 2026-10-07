@@ -20,10 +20,9 @@ ChatLogic::ChatLogic()
 
 ChatLogic::~ChatLogic()
 {
-   
-    delete _chatBot;
-
     // Remove manual deletion as using smart pointers now. 
+    // delete _chatBot;
+
     /*
     for (auto it = std::begin(_nodes); it != std::end(_nodes); ++it)
     {
@@ -241,8 +240,13 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
     }
 
     // TODO: add chatbot to graph root node
-    _chatBot->SetRootNode(rootNode);
-    rootNode->moveChatbotHere(_chatBot);
+    auto initialBot = std::unique_ptr<ChatBot>(_chatBot);
+
+    initialBot->SetRootNode(rootNode);
+    rootNode->moveChatbotHere(std::move(*initialBot));
+
+    // _chatBot->SetRootNode(rootNode);
+    // rootNode->moveChatbotHere(_chatBot);
     // END OF TODO
 
 }

@@ -43,10 +43,12 @@ void GraphNode::AddEdgeToChildNode(std::unique_ptr<GraphEdge> edge)
 
 // Store the chatbot pointer and set this node as its current node.
 // Used for initial setup (to root node) and chatbot navigation (subsequent operations)
-void GraphNode::moveChatbotHere(ChatBot* chatbot) 
+void GraphNode::moveChatbotHere(ChatBot chatbot) 
 {
-    _chatBot = chatbot;
-    _chatBot->SetCurrentNode(this);
+    // _chatBot = chatbot;
+    // _chatBot->SetCurrentNode(this);
+    _chatBot = std::move(chatbot);
+    _chatBot.SetCurrentNode(this);
 }
 
 void GraphNode::MoveChatbotToNewNode(GraphNode *newNode)

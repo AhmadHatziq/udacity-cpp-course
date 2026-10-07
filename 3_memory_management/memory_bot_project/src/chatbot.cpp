@@ -172,6 +172,7 @@ void ChatBot::SetCurrentNode(GraphNode *node)
 {   
     // Sets current node to be the argument node 
     _currentNode = node;
+    _chatLogic->SetChatbotHandle(this);
 
     std::vector<std::string> answers = _currentNode->GetAnswers(); // Extract current node answers 
     std::mt19937 generator(int(std::time(0))); // Create a random number given current time as the seed 

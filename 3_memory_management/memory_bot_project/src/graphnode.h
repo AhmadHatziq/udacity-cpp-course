@@ -25,7 +25,10 @@ private:
     std::vector<GraphEdge *> _parentEdges; // edges to preceding nodes 
 
     // Chatbot pointer 
-    ChatBot *_chatBot;
+    // ChatBot *_chatBot;
+    
+    // Change to ChatBot object 
+    ChatBot _chatBot;
    
     //// End of TODO
 
@@ -53,7 +56,8 @@ public:
     void AddEdgeToChildNode(std::unique_ptr<GraphEdge> edge);
     void AddEdgeToChildNode(GraphEdge *edge); // TODO
 
-    void moveChatbotHere(ChatBot *newNode); // TODO
+    // Change from pointer as will use std::move(existingBot)
+    void moveChatbotHere(ChatBot newNode); // TODO
 
     void MoveChatbotToNewNode(GraphNode *newNode);
 };
