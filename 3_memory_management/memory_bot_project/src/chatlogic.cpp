@@ -13,9 +13,20 @@
 #include "chatlogic.h"
 
 ChatLogic::ChatLogic()
-{
-   _chatBot = new ChatBot();
-   _chatBot->SetChatLogicHandle(std::make_unique<ChatLogic>(this));
+{   
+   // Remove creating new heap chatbot in place of empty handles. Will be created via stack. 
+   // _chatBot = new ChatBot(); // Heap object 
+   // _chatBot->SetChatLogicHandle(std::make_unique<ChatLogic>(this));
+
+  // Non-owning handles: nothing to observe yet.
+  _currentNode = nullptr;
+  _chatBot = nullptr;
+  _panelDialog = nullptr;
+  _hostLogic = nullptr;
+
+  // No bot is allocated here.
+  // LoadAnswerGraphFromFile() creates the local bot
+  // and moves it into the root node.
 }
 
 ChatLogic::~ChatLogic()
@@ -251,10 +262,29 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
     }
 
     // TODO: add chatbot to graph root node
-    auto initialBot = std::unique_ptr<ChatBot>(_chatBot);
+    if (rootNode == nullptr) {
+        std::cerr << "Error: No root node found." << std::endl;
+        return;
+    }
 
+    // Create the initial bot as a local stack object.
+    ChatBot initialBot;
+
+    // Borrow the graph root.
+    initialBot.SetRootNode(rootNode);
+
+    // Own a separate forwarding logic object.
+    initialBot.SetChatLogicHandle(
+        std::make_unique<ChatLogic>(this));
+
+    // Transfer the bot's resources into the root node.
+    rootNode->moveChatbotHere(std::move(initialBot));
+
+    /*
+    auto initialBot = std::unique_ptr<ChatBot>(_chatBot);
     initialBot->SetRootNode(rootNode);
     rootNode->moveChatbotHere(std::move(*initialBot));
+    */
 
     // _chatBot->SetRootNode(rootNode);
     // rootNode->moveChatbotHere(_chatBot);
