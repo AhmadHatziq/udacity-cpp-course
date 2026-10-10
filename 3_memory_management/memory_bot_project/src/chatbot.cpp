@@ -2,6 +2,7 @@
 #include <random>
 #include <algorithm>
 #include <ctime>
+#include <utility>
 
 #include "chatlogic.h"
 #include "graphnode.h"
@@ -12,9 +13,6 @@
 ChatBot::ChatBot()
 {
     std::cerr << ">>> Rule of Five Component: ChatBot Default Constructor <<<" << std::endl;
-    _chatLogic = nullptr;
-    _rootNode = nullptr;
-    _currentNode = nullptr; 
 }
 
 // T̶O̶D̶O̶ the following: 
@@ -24,7 +22,7 @@ ChatBot::ChatBot()
 ChatBot::ChatBot(const ChatBot &other)
     : _currentNode(other._currentNode),
       _rootNode(other._rootNode),
-      _chatLogic(other._chatLogic)
+      _chatLogic(other._chatLogic ? other._chatLogic->CloneForBot() : nullptr)
 {
     std::cerr << ">>> Rule of Five Component: ChatBot Copy Constructor <<<" << std::endl;
 }
@@ -38,9 +36,14 @@ ChatBot &ChatBot::operator=(const ChatBot &other)
 
     if (this != &other)
     {
+        // Allocate first. If allocation fails, this bot is unchanged.
+        auto replacementLogic = other._chatLogic
+                                    ? other._chatLogic->CloneForBot()
+                                    : nullptr;
+
+        _chatLogic = std::move(replacementLogic);
         _currentNode = other._currentNode;
         _rootNode = other._rootNode;
-        _chatLogic = other._chatLogic;
     }
 
     return *this;
@@ -50,17 +53,12 @@ ChatBot &ChatBot::operator=(const ChatBot &other)
 // Move constructor - Creates new obj by stealing resources from another object 
 // Used via: ChatBot b(std::move(a)); 
 ChatBot::ChatBot(ChatBot &&other) noexcept
-    : _currentNode(other._currentNode),
-      _rootNode(other._rootNode),
-      _chatLogic(other._chatLogic)
+    : _currentNode(std::exchange(other._currentNode, nullptr)),
+      _rootNode(std::exchange(other._rootNode, nullptr)),
+      _chatLogic(std::move(other._chatLogic))
 {
     std::cerr << ">>> Rule of Five Component: ChatBot Move Constructor <<<" << std::endl;
-
-    other._chatLogic = nullptr;
-    other._currentNode = nullptr;
-    other._rootNode = nullptr;
 }
-
 
 // DONE: add move assignment operator
 // Move assignment - Transfers resources into an already existing object 
@@ -71,13 +69,10 @@ ChatBot &ChatBot::operator=(ChatBot &&other) noexcept
 
     if (this != &other)
     {
-        _chatLogic = other._chatLogic;
-        _currentNode = other._currentNode;
-        _rootNode = other._rootNode;
-
-        other._chatLogic = nullptr;
-        other._currentNode = nullptr;
-        other._rootNode = nullptr;
+        // Releases any previously owned logic, then takes ownership.
+        _chatLogic = std::move(other._chatLogic);
+        _currentNode = std::exchange(other._currentNode, nullptr);
+        _rootNode = std::exchange(other._rootNode, nullptr);
     }
 
     return *this;
@@ -87,6 +82,12 @@ ChatBot &ChatBot::operator=(ChatBot &&other) noexcept
 ChatBot::~ChatBot()
 {
     std::cerr << ">>> Rule of Five Component: ChatBot Destructor <<<" << std::endl;
+}
+
+void ChatBot::SetChatLogicHandle(
+    std::unique_ptr<ChatLogic> chatLogic)
+{
+    _chatLogic = std::move(chatLogic);
 }
 
 // Main function to handle user message

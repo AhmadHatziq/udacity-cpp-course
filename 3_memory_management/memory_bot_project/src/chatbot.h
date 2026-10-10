@@ -2,6 +2,7 @@
 #define CHATBOT_H_
 
 #include <string>
+#include <memory>
 
 class GraphNode; // forward declaration
 class ChatLogic; // forward declaration
@@ -10,9 +11,12 @@ class ChatBot
 {
 private:
     // data handles (not owned)
-    GraphNode *_currentNode;
-    GraphNode *_rootNode;
-    ChatLogic *_chatLogic;
+    GraphNode *_currentNode = nullptr;
+    GraphNode *_rootNode = nullptr;
+    
+    // ChatLogic *_chatLogic;
+    // Owned forwarding logic object 
+    std::unique_ptr<ChatLogic> _chatLogic; 
 
     // proprietary functions
     int ComputeLevenshteinDistance(std::string s1, std::string s2);
@@ -44,7 +48,7 @@ public:
     // getters / setters
     void SetCurrentNode(GraphNode *node);
     void SetRootNode(GraphNode *rootNode) { _rootNode = rootNode; }
-    void SetChatLogicHandle(ChatLogic *chatLogic) { _chatLogic = chatLogic; }
+    void SetChatLogicHandle(std::unique_ptr<ChatLogic> chatLogic);
 
     // communication
     void ReceiveMessageFromUser(std::string message);

@@ -15,7 +15,7 @@
 ChatLogic::ChatLogic()
 {
    _chatBot = new ChatBot();
-   _chatBot->SetChatLogicHandle(this);
+   _chatBot->SetChatLogicHandle(std::make_unique<ChatLogic>(this));
 }
 
 ChatLogic::~ChatLogic()
@@ -29,6 +29,17 @@ ChatLogic::~ChatLogic()
         delete *it;
     }
     */
+}
+
+// Creates a forwarding object without allocating a bot or graph.
+ChatLogic::ChatLogic(ChatLogic *hostLogic)
+    : _hostLogic(hostLogic)
+{
+}
+
+std::unique_ptr<ChatLogic> ChatLogic::CloneForBot() const
+{
+    return std::make_unique<ChatLogic>(_hostLogic);
 }
 
 template <typename T>
@@ -258,15 +269,26 @@ void ChatLogic::SetPanelDialogHandle(ChatBotPanelDialog *panelDialog)
 }
 
 void ChatLogic::SendMessageToUser(std::string message)
-{
+{   
+    if (_hostLogic) {
+        _hostLogic->SendMessageToUser(std::move(message));
+        return; 
+    }
     _panelDialog->PrintChatbotResponse(message);
 }
 #else
 void ChatLogic::SetPanelDialogHandle(ChatBotPanelDialog *panelDialog) {}
-void ChatLogic::SendMessageToUser(std::string message) {}
+void ChatLogic::SendMessageToUser(std::string message) {
+  if (_hostLogic) {
+        _hostLogic->SendMessageToUser(std::move(message));
+    }
+}
 
 void ChatLogic::SetChatbotHandle(ChatBot *chatbot) {
     _chatBot = chatbot;
+    if (_hostLogic) {
+        _hostLogic->SetChatbotHandle(chatbot);
+    }
 }
 
 void ChatLogic::SendMessageToChatbot(std::string message) {

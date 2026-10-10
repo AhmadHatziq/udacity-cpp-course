@@ -20,9 +20,12 @@ private:
     std::vector<std::unique_ptr<GraphNode>> _nodes; // Use smart pointers instead of raw pointers 
 
     // data handles (not owned)
-    GraphNode *_currentNode;
-    ChatBot *_chatBot;
-    ChatBotPanelDialog *_panelDialog;
+    GraphNode *_currentNode = nullptr;
+    ChatBot *_chatBot = nullptr;
+    ChatBotPanelDialog *_panelDialog = nullptr;
+
+    // Original graph owning logic
+    ChatLogic *_hostLogic = nullptr; 
 
     // proprietary type definitions
     typedef std::vector<std::pair<std::string, std::string>> tokenlist;
@@ -34,7 +37,11 @@ private:
 public:
     // constructor / destructor
     ChatLogic();
-    ~ChatLogic();
+    // ~ChatLogic();
+    explicit ChatLogic(ChatLogic *hostLogic);
+    virtual ~ChatLogic();
+
+    std::unique_ptr<ChatLogic> CloneForBot() const;
 
     // getter / setter
     void SetPanelDialogHandle(ChatBotPanelDialog *panelDialog);
