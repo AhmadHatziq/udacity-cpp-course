@@ -9,12 +9,20 @@
 class Street;
 class Intersection;
 
-class Vehicle : public TrafficObject, public std::enable_shared_from_this<Vehicle>
+class Vehicle : public TrafficObject, 
+  // std::enable_shared_from_this<Vehicle> enables a Vehicle object 
+  // to obtain a std::shared_ptr<Vehicle> that shares ownership via "shared_from_this();"
+  public std::enable_shared_from_this<Vehicle> 
+                                               
+  /*
+    auto self = shared_from_this(); // Auto is a shared_pointer to this Vehicle object 
+  */
+
 {
 public:
     // constructor / desctructor
     Vehicle();
-    ~Vehicle() { _stopRequested = true; }
+    ~Vehicle() { _stopRequested = true; } // Destructor will set the flag to True 
 
     // getters / setters
     void setCurrentStreet(std::shared_ptr<Street> street) { _currStreet = street; };
